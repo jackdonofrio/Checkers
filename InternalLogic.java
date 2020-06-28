@@ -1,165 +1,194 @@
 import java.util.ArrayList;
 
-public class InternalLogic
-{
-  private int[][] grid;
+/**
+ * Class to handle the internal underlying logic behind the checkers board
+ * 
+ * @author Jack Donofrio
+ * @date 6-28-2020
+ */
+public class InternalLogic {
 
-  public InternalLogic()
-  {
-    setGridDefaults();
-  }
+	// piece value constants
+	private final int EMPTY_SQUARE_VALUE = 0;
+	private final int WHITE_PIECE_VALUE = 1;
+	private final int RED_PIECE_VALUE = 2;
+	private final int WHITE_KING_VALUE = 3;
+	private final int RED_KING_VALUE = 4;
 
-  public int[][] getGrid()
-  {
-    return grid;
-  }
+	private int[][] grid;
 
-  public void setGridDefaults()
-  {
-    // 4 = red king
-    // 3 = white king
-    // 2 = red
-    // 1 = white
-    // 0 = empty
-    int[][] boardDefaults =
-      {{0, 2, 0, 2, 0, 2, 0, 2, 0, 2}, {2, 0, 2, 0, 2, 0, 2, 0},
-          {0, 2, 0, 2, 0, 2, 0, 2}, {0, 0, 0, 0, 0, 0, 0, 0},
-          {0, 0, 0, 0, 0, 0, 0, 0}, {1, 0, 1, 0, 1, 0, 1, 0},
-          {0, 1, 0, 1, 0, 1, 0, 1}, {1, 0, 1, 0, 1, 0, 1, 0}};
-    grid = new int[8][8];
-    for (int row = 0; row < grid.length; row++)
-      for (int column = 0; column < grid[row].length; column++)
-        grid[row][column] = boardDefaults[row][column];
-  }
+	public InternalLogic() {
+		setGridDefaults();
+	}
 
-  public ArrayList<Move> getValidMovesForForwardPiece(int row, int column,
-    int opposingPiece)
-  {
-    ArrayList<Move> moves = new ArrayList<>();
+	/**
+	 * 
+	 * @return the 2d array representing the interal logic of the board
+	 */
+	public int[][] getGrid() {
+		return grid;
+	}
 
-    if (row > 0 && column > 0 && grid[row - 1][column - 1] == 0)
-    {
-      moves.add(new Move(row - 1, column - 1, 0));
-    }
-    if (row > 0 && column < 7 && grid[row - 1][column + 1] == 0)
-    {
-      moves.add(new Move(row - 1, column + 1, 0));
-    }
+	/**
+	 * 4 = red king 3 = white king 2 = red 1 = white 0 = empty
+	 * 
+	 * sets the grid values to their defaults
+	 */
+	public void setGridDefaults() {
+		int[][] boardDefaults = { 
+				{ 0, 2, 0, 2, 0, 2, 0, 2 }, 
+				{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
+				{ 0, 2, 0, 2, 0, 2, 0, 2 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+				{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+				{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
+				{ 0, 1, 0, 1, 0, 1, 0, 1 },
+				{ 1, 0, 1, 0, 1, 0, 1, 0 } 
+				};
+		grid = new int[8][8];
+		for (int row = 0; row < grid.length; row++)
+			for (int column = 0; column < grid[row].length; column++)
+				grid[row][column] = boardDefaults[row][column];
+	}
 
-    if (row > 1 && column > 1
-      && (grid[row - 1][column - 1] == opposingPiece
-        || grid[row - 1][column - 1] == opposingPiece + 2)
-      && grid[row - 2][column - 2] == 0)
-    {
-      moves.add(new Move(row - 2, column - 2, 1));
-    }
+	/**
+	 * 
+	 * @param row
+	 * @param column
+	 * @param opposingPieceValue
+	 * @return all valid moves for pieces moving up the board (forward)
+	 */
+	public ArrayList<Move> getValidMovesForForwardPiece(int row, int column, int opposingPieceValue) {
+		ArrayList<Move> moves = new ArrayList<>();
 
-    if (row > 1 && column < 6
-      && (grid[row - 1][column + 1] == opposingPiece
-        || grid[row - 1][column + 1] == opposingPiece + 2)
-      && grid[row - 2][column + 2] == 0)
-    {
-      moves.add(new Move(row - 2, column + 2, 1));
-    }
+		if (row > 0 && column > 0 && grid[row - 1][column - 1] == EMPTY_SQUARE_VALUE) {
+			moves.add(new Move(row - 1, column - 1, 0));
+		}
+		if (row > 0 && column < 7 && grid[row - 1][column + 1] == EMPTY_SQUARE_VALUE) {
+			moves.add(new Move(row - 1, column + 1, 0));
+		}
 
-    return moves;
-  }
+		if (row > 1 && column > 1
+				&& (grid[row - 1][column - 1] == opposingPieceValue || grid[row - 1][column - 1] == opposingPieceValue + 2)
+				&& grid[row - 2][column - 2] == EMPTY_SQUARE_VALUE) {
+			moves.add(new Move(row - 2, column - 2, 1));
+		}
 
-  public ArrayList<Move> getValidMovesForReversePiece(int row, int column,
-    int opposingPiece)
-  {
-    ArrayList<Move> moves = new ArrayList<>();
+		if (row > 1 && column < 6
+				&& (grid[row - 1][column + 1] == opposingPieceValue || grid[row - 1][column + 1] == opposingPieceValue + 2)
+				&& grid[row - 2][column + 2] == EMPTY_SQUARE_VALUE) {
+			moves.add(new Move(row - 2, column + 2, 1));
+		}
 
-    if (row < 7 && column > 0 && grid[row + 1][column - 1] == 0)
-    {
-      moves.add(new Move(row + 1, column - 1, 0));
-    }
-    if (row < 7 && column < 7 && grid[row + 1][column + 1] == 0)
-    {
-      moves.add(new Move(row + 1, column + 1, 0));
-    }
-    if (row < 6 && column > 1
-      && (grid[row + 1][column - 1] == opposingPiece
-        || grid[row + 1][column - 1] == opposingPiece + 2)
-      && grid[row + 2][column - 2] == 0)
-    {
-      moves.add(new Move(row + 2, column - 2, 1));
-    }
-    if (row < 6 && column < 6
-      && (grid[row + 1][column + 1] == opposingPiece
-        || grid[row + 1][column + 1] == opposingPiece + 2)
-      && grid[row + 2][column + 2] == 0)
-    {
-      moves.add(new Move(row + 2, column + 2, 1));
-    }
+		return moves;
+	}
 
-    return moves;
-  }
+	/**
+	 * 
+	 * @param row
+	 * @param column
+	 * @param opposingPieceValue
+	 * @return all valid moves for pieces moving down the board (reverse)
+	 */
+	public ArrayList<Move> getValidMovesForReversePiece(int row, int column, int opposingPieceValue) {
+		ArrayList<Move> moves = new ArrayList<>();
 
-  public ArrayList<Move> getValidMovesForKing(int row, int column,
-    int opposingPiece)
-  {
-    ArrayList<Move> moves = new ArrayList<>();
-    ArrayList<Move> reverseMoves =
-      getValidMovesForReversePiece(row, column, opposingPiece);
-    ArrayList<Move> forwardMoves =
-      getValidMovesForForwardPiece(row, column, opposingPiece);
-    for (Move move : reverseMoves)
-      moves.add(move);
-    for (Move move : forwardMoves)
-      moves.add(move);
-    return moves;
+		if (row < 7 && column > 0 && grid[row + 1][column - 1] == EMPTY_SQUARE_VALUE) {
+			int weight = 0;
+			// increase weight of moves that allow red pieces to become king
+			if (row + 1 == 7 && grid[row][column] == RED_PIECE_VALUE)
+				weight++;
+			moves.add(new Move(row + 1, column - 1, weight));
+		}
+		if (row < 7 && column < 7 && grid[row + 1][column + 1] == 0) {
+			int weight = 0;
+			// increase weight of moves that allow red pieces to become king
+			if (row + 1 == 7 && grid[row][column] == RED_PIECE_VALUE)
+				weight++;
+			moves.add(new Move(row + 1, column + 1, weight));
+		}
+		if (row < 6 && column > 1
+				&& (grid[row + 1][column - 1] == opposingPieceValue || grid[row + 1][column - 1] == opposingPieceValue + 2)
+				&& grid[row + 2][column - 2] == EMPTY_SQUARE_VALUE) {
+			moves.add(new Move(row + 2, column - 2, 1));
+		}
+		if (row < 6 && column < 6
+				&& (grid[row + 1][column + 1] == opposingPieceValue || grid[row + 1][column + 1] == opposingPieceValue + 2)
+				&& grid[row + 2][column + 2] == EMPTY_SQUARE_VALUE) {
+			moves.add(new Move(row + 2, column + 2, 1));
+		}
 
-  }
+		return moves;
+	}
 
-  /**
-   * Returns current position at index 0 and TO position at index 1
-   */
-  public Move[] makeNaiveOpponentMove()
-  {
-    ArrayList<Move[]> all = new ArrayList<>();
-    for (int row = grid.length - 1; row >= 0; row--)
-      for (int column = 0; column < grid[row].length; column++)
-        if (grid[row][column] == 2 || grid[row][column] == 4)
-        {
-          ArrayList<Move> moves =
-            grid[row][column] == 2
-              ? getValidMovesForReversePiece(row, column, 1)
-              : getValidMovesForKing(row, column, 1);
-          if (moves.size() > 0)
-            for (Move move : moves)
-            {
-              all.add(new Move[] {new Move(row, column, 0), move});
-              // prioritize taking opponent pieces (these moves are weighted 1)
-              if (move.getMoveWeight() == 1)
-                return new Move[] {new Move(row, column, 0), move};
-            }
-        }
-    if (all.size() > 0)
-      return all.get((int) (Math.random() * all.size()));
-    return null;
+	/**
+	 * 
+	 * @param row
+	 * @param column
+	 * @param opposingPieceValue
+	 * @return all valid moves for a given king piece at (row,column) on the grid
+	 */
+	public ArrayList<Move> getValidMovesForKing(int row, int column, int opposingPieceValue) {
+		ArrayList<Move> moves = new ArrayList<>();
+		ArrayList<Move> reverseMoves = getValidMovesForReversePiece(row, column, opposingPieceValue);
+		ArrayList<Move> forwardMoves = getValidMovesForForwardPiece(row, column, opposingPieceValue);
+		for (Move move : reverseMoves)
+			moves.add(move);
+		for (Move move : forwardMoves)
+			moves.add(move);
+		return moves;
 
-  }
+	}
 
-  public String getWinner()
-  {
-    boolean hasNoWhite = true;
-    boolean hasNoRed = true;
+	/**
+	 * makes naive opponent move - scans the possible moves of each red piece, from
+	 * bottom up (to prioritize movement of pieces further down the board) if it
+	 * finds one that can take an opponent's piece or become king, it does it
+	 * otherwise a random move is selected from all possible moves. I may add a
+	 * minimax or alpha-beta pruning function to create different difficulty levels
+	 * 
+	 * @return 2-long array with FROM position at index 0 and TO position at index 1
+	 */
+	public Move[] makeNaiveOpponentMove() {
+		ArrayList<Move[]> all = new ArrayList<>();
+		for (int row = grid.length - 1; row >= 0; row--)
+			for (int column = 0; column < grid[row].length; column++)
+				if (grid[row][column] == RED_PIECE_VALUE || grid[row][column] == RED_KING_VALUE) {
+					ArrayList<Move> moves = grid[row][column] == RED_PIECE_VALUE ? getValidMovesForReversePiece(row, column, 1)
+							: getValidMovesForKing(row, column, 1);
+					if (moves.size() > 0)
+						for (Move move : moves) {
+							all.add(new Move[] { new Move(row, column, 0), move });
+							// prioritize taking opponent pieces and making kings (these moves are w=1)
+							if (move.getMoveWeight() == 1)
+								return new Move[] { new Move(row, column, 0), move };
+						}
+				}
+		if (all.size() > 0)
+			return all.get((int) (Math.random() * all.size()));
+		return null;
+	}
 
-    for (int r = 0; r < 8; r++)
-      for (int c = 0; c < 8; c++)
-      {
-        if (grid[r][c] == 2 || grid[r][c] == 4)
-          hasNoRed = false;
-        else if (grid[r][c] == 1 || grid[r][c] == 3)
-          hasNoWhite = false;
-      }
+	/**
+	 * @return the winner of the game, "none" if there is no winner yet
+	 */
+	public String getWinner() {
+		boolean hasNoWhite = true;
+		boolean hasNoRed = true;
 
-    if (hasNoWhite)
-      return "Red wins.";
-    else if (hasNoRed)
-      return "White wins";
-    return "none";
-  }
+		for (int r = 0; r < 8; r++)
+			for (int c = 0; c < 8; c++) {
+				if (grid[r][c] == RED_PIECE_VALUE || grid[r][c] == RED_KING_VALUE)
+					hasNoRed = false;
+				else if (grid[r][c] == WHITE_PIECE_VALUE || grid[r][c] == WHITE_KING_VALUE)
+					hasNoWhite = false;
+			}
+
+		if (hasNoWhite)
+			return "Red wins.";
+		else if (hasNoRed)
+			return "White wins";
+		return "none";
+	}
 
 }
