@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Class to handle the internal underlying logic behind the checkers board
@@ -35,16 +36,9 @@ public class InternalLogic {
 	 * sets the grid values to their defaults
 	 */
 	public void setGridDefaults() {
-		int[][] boardDefaults = { 
-				{ 0, 2, 0, 2, 0, 2, 0, 2 }, 
-				{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
-				{ 0, 2, 0, 2, 0, 2, 0, 2 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
-				{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
-				{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
-				{ 0, 1, 0, 1, 0, 1, 0, 1 },
-				{ 1, 0, 1, 0, 1, 0, 1, 0 } 
-				};
+		int[][] boardDefaults = { { 0, 2, 0, 2, 0, 2, 0, 2 }, { 2, 0, 2, 0, 2, 0, 2, 0 }, { 0, 2, 0, 2, 0, 2, 0, 2 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 1, 0, 1, 0, 1, 0, 1, 0 }, { 0, 1, 0, 1, 0, 1, 0, 1 },
+				{ 1, 0, 1, 0, 1, 0, 1, 0 } };
 		grid = new int[8][8];
 		for (int row = 0; row < grid.length; row++)
 			for (int column = 0; column < grid[row].length; column++)
@@ -61,23 +55,26 @@ public class InternalLogic {
 	public ArrayList<Move> getValidMovesForForwardPiece(int row, int column, int opposingPieceValue) {
 		ArrayList<Move> moves = new ArrayList<>();
 
-		if (row > 0 && column > 0 && grid[row - 1][column - 1] == EMPTY_SQUARE_VALUE) {
-			moves.add(new Move(row - 1, column - 1, 0));
-		}
-		if (row > 0 && column < 7 && grid[row - 1][column + 1] == EMPTY_SQUARE_VALUE) {
-			moves.add(new Move(row - 1, column + 1, 0));
-		}
+		moves = addEmptySpaceMove(row - 1, column - 1, moves, 0);
+		moves = addEmptySpaceMove(row - 1, column + 1, moves, 0);
 
-		if (row > 1 && column > 1
+		int startRow = row;
+		int startCol = column;
+		while (row > 1 && column > 1
 				&& (grid[row - 1][column - 1] == opposingPieceValue || grid[row - 1][column - 1] == opposingPieceValue + 2)
 				&& grid[row - 2][column - 2] == EMPTY_SQUARE_VALUE) {
 			moves.add(new Move(row - 2, column - 2, 1));
+			row -= 2;
+			column -= 2;
 		}
-
-		if (row > 1 && column < 6
+		row = startRow;
+		column = startCol;
+		while (row > 1 && column < 6
 				&& (grid[row - 1][column + 1] == opposingPieceValue || grid[row - 1][column + 1] == opposingPieceValue + 2)
 				&& grid[row - 2][column + 2] == EMPTY_SQUARE_VALUE) {
 			moves.add(new Move(row - 2, column + 2, 1));
+			row -= 2;
+			column += 2;
 		}
 
 		return moves;
@@ -92,32 +89,49 @@ public class InternalLogic {
 	 */
 	public ArrayList<Move> getValidMovesForReversePiece(int row, int column, int opposingPieceValue) {
 		ArrayList<Move> moves = new ArrayList<>();
+		moves = addEmptySpaceMove(row + 1, column - 1, moves, 0);
+		moves = addEmptySpaceMove(row + 1, column + 1, moves, 0);
 
-		if (row < 7 && column > 0 && grid[row + 1][column - 1] == EMPTY_SQUARE_VALUE) {
-			int weight = 0;
-			// increase weight of moves that allow red pieces to become king
-			if (row + 1 == 7 && grid[row][column] == RED_PIECE_VALUE)
+		int startRow = row;
+		int startCol = column;
+
+		try {
+			int weight = 1;
+			while ((grid[row + 1][column - 1] == opposingPieceValue || grid[row + 1][column - 1] == opposingPieceValue + 2)
+					&& grid[row + 2][column - 2] == EMPTY_SQUARE_VALUE) {
+				moves.add(new Move(row + 2, column - 2, weight));
 				weight++;
-			moves.add(new Move(row + 1, column - 1, weight));
+				row += 2;
+				column -= 2;
+			}
+			row = startRow;
+			column = startCol;
+		} catch (IndexOutOfBoundsException e) {
 		}
-		if (row < 7 && column < 7 && grid[row + 1][column + 1] == 0) {
-			int weight = 0;
-			// increase weight of moves that allow red pieces to become king
-			if (row + 1 == 7 && grid[row][column] == RED_PIECE_VALUE)
+		try {
+			int weight = 1;
+			while ((grid[row + 1][column + 1] == opposingPieceValue || grid[row + 1][column + 1] == opposingPieceValue + 2)
+					&& grid[row + 2][column + 2] == EMPTY_SQUARE_VALUE) {
+				moves.add(new Move(row + 2, column + 2, weight));
 				weight++;
-			moves.add(new Move(row + 1, column + 1, weight));
-		}
-		if (row < 6 && column > 1
-				&& (grid[row + 1][column - 1] == opposingPieceValue || grid[row + 1][column - 1] == opposingPieceValue + 2)
-				&& grid[row + 2][column - 2] == EMPTY_SQUARE_VALUE) {
-			moves.add(new Move(row + 2, column - 2, 1));
-		}
-		if (row < 6 && column < 6
-				&& (grid[row + 1][column + 1] == opposingPieceValue || grid[row + 1][column + 1] == opposingPieceValue + 2)
-				&& grid[row + 2][column + 2] == EMPTY_SQUARE_VALUE) {
-			moves.add(new Move(row + 2, column + 2, 1));
+				row += 2;
+				column += 2;
+			}
+		} catch (IndexOutOfBoundsException e) {
 		}
 
+		return moves;
+	}
+
+	private ArrayList<Move> addEmptySpaceMove(int row, int column, ArrayList<Move> m, int weight) {
+		ArrayList<Move> moves = m;
+		try {
+			if (grid[row][column] == EMPTY_SQUARE_VALUE) {
+				moves.add(new Move(row, column, weight));
+				return moves;
+			}
+		} catch (IndexOutOfBoundsException e) {
+		}
 		return moves;
 	}
 
@@ -151,21 +165,32 @@ public class InternalLogic {
 	 */
 	public Move[] makeNaiveOpponentMove() {
 		ArrayList<Move[]> all = new ArrayList<>();
+		Move[] max = null;
+		int maxWeight = 0;
 		for (int row = grid.length - 1; row >= 0; row--)
 			for (int column = 0; column < grid[row].length; column++)
 				if (grid[row][column] == RED_PIECE_VALUE || grid[row][column] == RED_KING_VALUE) {
 					ArrayList<Move> moves = grid[row][column] == RED_PIECE_VALUE ? getValidMovesForReversePiece(row, column, 1)
 							: getValidMovesForKing(row, column, 1);
-					if (moves.size() > 0)
+
+					if (moves.size() > 0) {
+						// take most heavily weighted
 						for (Move move : moves) {
 							all.add(new Move[] { new Move(row, column, 0), move });
-							// prioritize taking opponent pieces and making kings (these moves are w=1)
-							if (move.getMoveWeight() == 1)
-								return new Move[] { new Move(row, column, 0), move };
+							if (move.getMoveWeight() > maxWeight) {
+								maxWeight = move.getMoveWeight();
+								max = new Move[] { new Move(row, column, 0), move };
+							}
 						}
+						all.add(new Move[] { new Move(row, column, 0), moves.get((int) (Math.random() * moves.size())) });
+					}
 				}
-		if (all.size() > 0)
+		if (max != null) {
+			return max;
+		} else if (all.size() > 0) {
 			return all.get((int) (Math.random() * all.size()));
+		}
+
 		return null;
 	}
 
