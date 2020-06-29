@@ -36,9 +36,16 @@ public class InternalLogic {
 	 * sets the grid values to their defaults
 	 */
 	public void setGridDefaults() {
-		int[][] boardDefaults = { { 0, 2, 0, 2, 0, 2, 0, 2 }, { 2, 0, 2, 0, 2, 0, 2, 0 }, { 0, 2, 0, 2, 0, 2, 0, 2 },
-				{ 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0 }, { 1, 0, 1, 0, 1, 0, 1, 0 }, { 0, 1, 0, 1, 0, 1, 0, 1 },
-				{ 1, 0, 1, 0, 1, 0, 1, 0 } };
+		int[][] boardDefaults = { 
+			{ 0, 2, 0, 2, 0, 2, 0, 2 }, 
+			{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
+			{ 0, 2, 0, 2, 0, 2, 0, 2 },
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+			{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
+			{ 0, 1, 0, 1, 0, 1, 0, 1 },
+			{ 1, 0, 1, 0, 1, 0, 1, 0 } 
+		};
 		grid = new int[8][8];
 		for (int row = 0; row < grid.length; row++)
 			for (int column = 0; column < grid[row].length; column++)
