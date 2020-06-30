@@ -229,7 +229,7 @@ public class Checkers {
 												&& opponentEndingColumn > opponentStartingColumn) {
 											int i = opponentStartingRow;
 											int j = opponentStartingColumn;
-											while (i > opponentEndingRow && j < opponentEndingRow) {
+											while (i > opponentEndingRow && j < opponentEndingColumn) {
 												internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
 												i--;
 												j++;
@@ -316,5 +316,4 @@ public class Checkers {
 		if (!winner.equals("none"))
 			JOptionPane.showMessageDialog(null, winner);
 	}
-
 }
