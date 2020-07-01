@@ -103,8 +103,8 @@ public class Checkers {
 				gridOfSquares[row][column].setContentAreaFilled(false);
 
 				// values used inside action listener must be declared as final
-				final int playerEndingRow = row;
-				final int playerEndingCol = column;
+				final int playerSelectedRow = row;
+				final int playerSelectedCol = column;
 
 				/**
 				 * Action listener for when a square on the grid is clicked
@@ -112,14 +112,14 @@ public class Checkers {
 				gridOfSquares[row][column].addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
 						readInternalLogic();
-						int pieceValue = internalLogic.getGrid()[playerEndingRow][playerEndingCol];
+						int pieceValue = internalLogic.getGrid()[playerSelectedRow][playerSelectedCol];
 						if (pieceValue == WHITE_PIECE_VALUE || pieceValue == WHITE_KING_VALUE) {
-							currentlySelectedPiece = new Move(playerEndingRow, playerEndingCol, 0);
+							currentlySelectedPiece = new Move(playerSelectedRow, playerSelectedCol, 0);
 							// highlight all possible moves
 							int opposingPiece = RED_PIECE_VALUE;
 							ArrayList<Move> possibleMoves = pieceValue == WHITE_PIECE_VALUE
-									? internalLogic.getValidMovesForForwardPiece(playerEndingRow, playerEndingCol, opposingPiece)
-									: internalLogic.getValidMovesForKing(playerEndingRow, playerEndingCol, opposingPiece);
+									? internalLogic.getValidMovesForForwardPiece(playerSelectedRow, playerSelectedCol, opposingPiece)
+									: internalLogic.getValidMovesForKing(playerSelectedRow, playerSelectedCol, opposingPiece);
 							currentlySelectedPiece.setPossibleMoves(possibleMoves);
 							for (Move m : possibleMoves) {
 								gridOfSquares[m.getRow()][m.getColumn()]
@@ -131,10 +131,10 @@ public class Checkers {
 								&& internalLogic.getGrid()[currentlySelectedPiece.getRow()][currentlySelectedPiece
 										.getColumn()] != 0) {
 							for (Move move : currentlySelectedPiece.getAssignedPossibleMoves()) {
-								if (move.getRow() == playerEndingRow && move.getColumn() == playerEndingCol) {
+								if (move.getRow() == playerSelectedRow && move.getColumn() == playerSelectedCol) {
 
-									int playerEndRow = playerEndingRow;
-									int playerEndCol = playerEndingCol;
+									int playerEndRow = playerSelectedRow;
+									int playerEndCol = playerSelectedCol;
 
 									int playerStartingRow = currentlySelectedPiece.getRow();
 									int playerStartingCol = currentlySelectedPiece.getColumn();
