@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * Class to handle the internal underlying logic behind the checkers board
@@ -24,7 +23,7 @@ public class InternalLogic {
 
 	/**
 	 * 
-	 * @return the 2d array representing the interal logic of the board
+	 * @return the 2d array representing the internal logic of the board
 	 */
 	public int[][] getGrid() {
 		return grid;
@@ -37,15 +36,14 @@ public class InternalLogic {
 	 */
 	public void setGridDefaults() {
 		int[][] boardDefaults = { 
-			{ 0, 2, 0, 2, 0, 2, 0, 2 }, 
-			{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
-			{ 0, 2, 0, 2, 0, 2, 0, 2 },
-			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
-			{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
-			{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
-			{ 0, 1, 0, 1, 0, 1, 0, 1 },
-			{ 1, 0, 1, 0, 1, 0, 1, 0 } 
-		};
+				{ 0, 2, 0, 2, 0, 2, 0, 2 }, 
+				{ 2, 0, 2, 0, 2, 0, 2, 0 }, 
+				{ 0, 2, 0, 2, 0, 2, 0, 2 },
+				{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+				{ 0, 0, 0, 0, 0, 0, 0, 0 }, 
+				{ 1, 0, 1, 0, 1, 0, 1, 0 }, 
+				{ 0, 1, 0, 1, 0, 1, 0, 1 },
+				{ 1, 0, 1, 0, 1, 0, 1, 0 } };
 		grid = new int[8][8];
 		for (int row = 0; row < grid.length; row++)
 			for (int column = 0; column < grid[row].length; column++)
@@ -161,6 +159,95 @@ public class InternalLogic {
 
 	}
 
+	public boolean playerMoveIsValid(int destinationRow, int destinationColumn, Move currentlySelectedPiece) {
+		for (Move move : currentlySelectedPiece.getAssignedPossibleMoves()) {
+			if (move.getRow() == destinationRow && move.getColumn() == destinationColumn) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void makeMove(int playerDestinationRow, int playerDestinationColumn, Move currentlySelectedPiece) {
+
+		int playerStartingRow = currentlySelectedPiece.getRow();
+		int playerStartingColumn = currentlySelectedPiece.getColumn();
+
+		int selectedPieceValue = grid[playerStartingRow][playerStartingColumn];
+		// grid[playerStartingRow][playerStartingColumn] = EMPTY_SQUARE_VALUE;
+
+		// IF UP LEFT ^>
+		if (playerDestinationRow < playerStartingRow && playerDestinationColumn < playerStartingColumn) {
+			int i = playerStartingRow;
+			int j = playerStartingColumn;
+			while (i > playerDestinationRow && j > playerDestinationColumn) {
+				grid[i][j] = EMPTY_SQUARE_VALUE;
+				i--;
+				j--;
+			}
+			grid[i][j] = selectedPieceValue;
+		}
+
+		// IF UP RIGHT
+		if (playerDestinationRow < playerStartingRow && playerDestinationColumn > playerStartingColumn) {
+			int i = playerStartingRow;
+			int j = playerStartingColumn;
+			while (i > playerDestinationRow && j < playerDestinationColumn) {
+				grid[i][j] = EMPTY_SQUARE_VALUE;
+				i--;
+				j++;
+			}
+			grid[i][j] = selectedPieceValue;
+		}
+
+		// IF DOWN LEFT
+		if (playerDestinationRow > playerStartingRow && playerDestinationColumn < playerStartingColumn) {
+			int i = playerStartingRow;
+			int j = playerStartingColumn;
+			while (i < playerDestinationRow && j > playerDestinationColumn) {
+				grid[i][j] = EMPTY_SQUARE_VALUE;
+				i++;
+				j--;
+			}
+			grid[i][j] = selectedPieceValue;
+		}
+
+		// IF DOWN RIGHT
+		if (playerDestinationRow > playerStartingRow && playerDestinationColumn > playerStartingColumn) {
+			int i = playerStartingRow;
+			int j = playerStartingColumn;
+			while (i < playerDestinationRow && j < playerDestinationColumn) {
+				grid[i][j] = EMPTY_SQUARE_VALUE;
+				i++;
+				j++;
+			}
+			grid[i][j] = selectedPieceValue;
+		}
+
+		if (selectedPieceValue == WHITE_PIECE_VALUE || selectedPieceValue == WHITE_KING_VALUE) {
+			// if reach top, make white piece king
+			if (playerDestinationRow == 0)
+				grid[playerDestinationRow][playerDestinationColumn] = WHITE_KING_VALUE;
+			// else, it retains its value
+			else
+				grid[playerDestinationRow][playerDestinationColumn] = selectedPieceValue;
+		} else {
+			if (playerDestinationRow == 7)
+				grid[playerDestinationRow][playerDestinationColumn] = RED_KING_VALUE;
+			else
+				grid[playerDestinationRow][playerDestinationColumn] = selectedPieceValue;
+
+		}
+	}
+
+	public void playerMoveEvent(int row, int column, Move piece) {
+		if (playerMoveIsValid(row, column, piece)) {
+			makeMove(row, column, piece);
+			Move[] opponentMove = getNaiveOpponentMove();
+			makeMove(opponentMove[1].getRow(), opponentMove[1].getColumn(), opponentMove[0]);
+		}
+	}
+
 	/**
 	 * makes naive opponent move - scans the possible moves of each red piece, from
 	 * bottom up (to prioritize movement of pieces further down the board) if it
@@ -170,7 +257,7 @@ public class InternalLogic {
 	 * 
 	 * @return 2-long array with FROM position at index 0 and TO position at index 1
 	 */
-	public Move[] makeNaiveOpponentMove() {
+	public Move[] getNaiveOpponentMove() {
 		ArrayList<Move[]> all = new ArrayList<>();
 		Move[] max = null;
 		int maxWeight = 0;

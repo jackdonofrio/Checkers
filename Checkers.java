@@ -34,8 +34,8 @@ public class Checkers {
 
 	private JFrame frame;
 	private JButton[][] gridOfSquares;
-	private Move currentlySelectedPiece;
 
+	private Move currentlySelectedPiece;
 	private InternalLogic internalLogic;
 
 	/**
@@ -85,6 +85,7 @@ public class Checkers {
 		});
 		newGameButton.setBounds(274, 663, 101, 23);
 		frame.getContentPane().add(newGameButton);
+
 	}
 
 	/**
@@ -113,12 +114,16 @@ public class Checkers {
 					public void actionPerformed(ActionEvent arg0) {
 						readInternalLogic();
 						int pieceValue = internalLogic.getGrid()[playerSelectedRow][playerSelectedCol];
+
+						// if the square clicked is occupied by a piece owned by the player, set that to
+						// the currentlySelectedPiece and show the player all possible move choices.
+
 						if (pieceValue == WHITE_PIECE_VALUE || pieceValue == WHITE_KING_VALUE) {
 							currentlySelectedPiece = new Move(playerSelectedRow, playerSelectedCol, 0);
-							// highlight all possible moves
 							int opposingPiece = RED_PIECE_VALUE;
 							ArrayList<Move> possibleMoves = pieceValue == WHITE_PIECE_VALUE
-									? internalLogic.getValidMovesForForwardPiece(playerSelectedRow, playerSelectedCol, opposingPiece)
+									? internalLogic.getValidMovesForForwardPiece(playerSelectedRow, playerSelectedCol,
+											opposingPiece)
 									: internalLogic.getValidMovesForKing(playerSelectedRow, playerSelectedCol, opposingPiece);
 							currentlySelectedPiece.setPossibleMoves(possibleMoves);
 							for (Move m : possibleMoves) {
@@ -127,154 +132,19 @@ public class Checkers {
 							}
 						}
 
+						// otherwise, if the square is empty and a piece has been selected, try to do a
+						// move event.
+
 						if (pieceValue == EMPTY_SQUARE_VALUE && currentlySelectedPiece != null
 								&& internalLogic.getGrid()[currentlySelectedPiece.getRow()][currentlySelectedPiece
 										.getColumn()] != 0) {
-							for (Move move : currentlySelectedPiece.getAssignedPossibleMoves()) {
-								if (move.getRow() == playerSelectedRow && move.getColumn() == playerSelectedCol) {
 
-									int playerEndRow = playerSelectedRow;
-									int playerEndCol = playerSelectedCol;
-
-									int playerStartingRow = currentlySelectedPiece.getRow();
-									int playerStartingCol = currentlySelectedPiece.getColumn();
-
-									int selectedPieceValue = internalLogic.getGrid()[currentlySelectedPiece
-											.getRow()][playerStartingCol];
-									internalLogic.getGrid()[playerStartingRow][currentlySelectedPiece
-											.getColumn()] = EMPTY_SQUARE_VALUE;
-
-									// NEGATE ALL PIECES BETWEEN START -- > END
-
-									// IF UP LEFT ^>
-									if (playerEndRow < playerStartingRow && playerEndCol < playerStartingCol) {
-										int i = playerStartingRow;
-										int j = playerStartingCol;
-										while (i > playerEndRow && j > playerEndCol) {
-											internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-											i--;
-											j--;
-										}
-										internalLogic.getGrid()[i][j] = selectedPieceValue;
-									}
-
-									// IF UP RIGHT
-									if (playerEndRow < playerStartingRow && playerEndCol > playerStartingCol) {
-										int i = playerStartingRow;
-										int j = playerStartingCol;
-										while (i > playerEndRow && j < playerEndCol) {
-											internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-											i--;
-											j++;
-										}
-										internalLogic.getGrid()[i][j] = selectedPieceValue;
-									}
-
-									// IF DOWN LEFT
-									if (playerEndRow > playerStartingRow && playerEndCol < playerStartingCol) {
-										int i = playerStartingRow;
-										int j = playerStartingCol;
-										while (i < playerEndRow && j > playerEndCol) {
-											internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-											i++;
-											j--;
-										}
-										internalLogic.getGrid()[i][j] = selectedPieceValue;
-									}
-
-									// IF DOWN RIGHT
-									if (playerEndRow > playerStartingRow && playerEndCol > playerStartingCol) {
-										int i = playerStartingRow;
-										int j = playerStartingCol;
-										while (i < playerEndRow && j < playerEndCol) {
-											internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-											i++;
-											j++;
-										}
-										internalLogic.getGrid()[i][j] = selectedPieceValue;
-									}
-
-									// if reach top, make white piece king
-									if (playerEndRow == 0)
-										internalLogic.getGrid()[playerEndRow][playerEndCol] = WHITE_KING_VALUE;
-									// else, it retains its value
-									else
-										internalLogic.getGrid()[playerEndRow][playerEndCol] = selectedPieceValue;
-
-									// opponent move logic
-									Move[] oppMove = internalLogic.makeNaiveOpponentMove();
-
-									if (oppMove != null) {
-										int opponentStartingRow = oppMove[0].getRow();
-										int opponentStartingColumn = oppMove[0].getColumn();
-										int opponentEndingRow = oppMove[1].getRow();
-										int opponentEndingColumn = oppMove[1].getColumn();
-										pieceValue = internalLogic.getGrid()[opponentStartingRow][opponentStartingColumn];
-
-										// IF UP LEFT
-										if (opponentEndingRow < opponentStartingRow
-												&& opponentEndingColumn < opponentStartingColumn) {
-											int i = opponentStartingRow;
-											int j = opponentStartingColumn;
-											while (i > opponentEndingRow && j > opponentEndingColumn) {
-												internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-												i--;
-												j--;
-											}
-											internalLogic.getGrid()[i][j] = pieceValue;
-										}
-
-										// IF UP RIGHT
-										if (opponentEndingRow < opponentStartingRow
-												&& opponentEndingColumn > opponentStartingColumn) {
-											int i = opponentStartingRow;
-											int j = opponentStartingColumn;
-											while (i > opponentEndingRow && j < opponentEndingColumn) {
-												internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-												i--;
-												j++;
-											}
-											internalLogic.getGrid()[i][j] = pieceValue;
-										}
-
-										// IF DOWN LEFT
-										if (opponentEndingRow > opponentStartingRow
-												&& opponentEndingColumn < opponentStartingColumn) {
-											int i = opponentStartingRow;
-											int j = opponentStartingColumn;
-											while (i < opponentEndingRow && j > opponentEndingColumn) {
-												internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-												i++;
-												j--;
-											}
-											internalLogic.getGrid()[i][j] = pieceValue;
-										}
-
-										// IF DOWN RIGHT
-										if (opponentEndingRow > opponentStartingRow
-												&& opponentEndingColumn > opponentStartingColumn) {
-											int i = opponentStartingRow;
-											int j = opponentStartingColumn;
-											while (i < opponentEndingRow && j < opponentEndingColumn) {
-												internalLogic.getGrid()[i][j] = EMPTY_SQUARE_VALUE;
-												i++;
-												j++;
-											}
-											internalLogic.getGrid()[i][j] = pieceValue;
-
-										}
-
-										// if reach bottom, make red piece king
-										if (opponentEndingRow == 7)
-											internalLogic.getGrid()[opponentEndingRow][opponentEndingColumn] = RED_KING_VALUE;
-										else
-											internalLogic.getGrid()[opponentEndingRow][opponentEndingColumn] = pieceValue;
-									}
-									readInternalLogic();
-								}
-							}
+							internalLogic.playerMoveEvent(playerSelectedRow, playerSelectedCol, currentlySelectedPiece);
+							currentlySelectedPiece = null;
+							readInternalLogic();
 						}
 					}
+
 				});
 				frame.getContentPane().add(gridOfSquares[row][column]);
 			}
